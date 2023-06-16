@@ -3,10 +3,10 @@ import math
 
 
 def designmatrix_gen(x, degree):
+    """ This function returns the Design matrix for both cases i.e. when the input is 1D and 2D"""
 
     num = x.shape[0]
     feature_size = x.shape[1]
-
 
     if feature_size == 1:
         '''This if condition checks whether the input is 1D if yes, it will proceed to form the design matrix using 
@@ -27,7 +27,6 @@ def designmatrix_gen(x, degree):
         x2 = x[:, 1].copy()
         monomials = math.factorial(degree + feature_size) // (math.factorial(degree) * math.factorial(feature_size))
 
-
         DesignMatrix = np.ones([num, monomials])
 
         count = 0
@@ -37,17 +36,15 @@ def designmatrix_gen(x, degree):
                 DesignMatrix[:, count] = product
                 count += 1
 
-
         return DesignMatrix
-
 
     else:
         print("Can't form Design matrix for input data size > 2 and input data size is %d" % feature_size)
 
 
-
-
 def linear_model(x, degree, w):
+    """ The function returns the linear model for regression function from which the output
+        values will be predicted based on the weight parameters 'w' given """
 
     DesignMatrix = designmatrix_gen(x, degree)
     y = np.matmul(DesignMatrix, w)

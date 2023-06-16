@@ -1,15 +1,13 @@
-import numpy as np
 import pandas as pd
-
 from DataForm import read_data, format_data, kfold_cv
 from matplotlib import pyplot
 from Regression import Regression
-from DesignMatrixfunction import designmatrix_gen, linear_model
+
 
 """Intializing all the variables"""
 
 # input_path = "C:\Users\laxman\OneDrive\Desktop\ML\PRMLv2_Task1"
-input_filename = "function2"
+# input_filename = "function2"
 train_datasize = 50
 K = 4
 degrees = [2, 3, 6]
@@ -47,16 +45,9 @@ for degree in degrees:
         SERMS_test = 0
         fold_data = {}
 
-
         for i in range(K):
 
-            X_plot_train = []
-            Y_plot_train = []
-
-
             train_data = train_list[i].copy()
-            print("Fold = %d" % (i+1))
-            print(train_data.shape)
             val_data = val_list[i].copy()
 
             Trial = Regression(train_data, degree, True, lda)
@@ -66,51 +57,11 @@ for degree in degrees:
             ERMS_val, X_val, Y_val, Y_valpred = Trial.test_w(W, val_data)
             ERMS_test, X_test, Y_test, Y_testpred = Trial.test_w(W, test_data)
 
+            # Forming the mesh for plotting the predicted curve or surface
 
-            X1_plot_train = np.linspace(np.min(X_train), np.max(X_train),grid_size)
-            X2_plot_train = X1_plot_train.copy()
-            # print(X1_plot_train)
-            # print(X2_plot_train)
-            X1, X2 = np.meshgrid (X1_plot_train, X2_plot_train)
-            # print(X1)
-            # print(X2)
-            X = np.array([X1.T,X2.T])
-            # print(X.shape)
-            # print(X)
-
-            for l in range(grid_size):
-                X_plot_column = []
-                for m in range(grid_size):
-                     X_plot_column.append(np.array([X1_plot_train[l], X2_plot_train[m]]))
-                X_plot_column = np.array(X_plot_column)
-                Y_plot_column = linear_model(X_plot_column, degree, W)
-                X_plot_train.append(X_plot_column)
-                Y_plot_train.append(Y_plot_column)
-            X_plot_train = np.array(X_plot_train)
-            Y_plot_train = np.array(Y_plot_train)
-            # print(X_plot_train.shape)
-            # print(X_plot_train)
-            # print(Y_plot_train.shape)
-            # print(Y_plot_train)
-
-
-
-            # print("Check here ^")
-
-
-            X1_plot_val = np.linspace(np.min(X_val), np.max(X_val),grid_size)
-            X1_plot_val = X1_plot_val.reshape([grid_size, 1])
-            X2_plot_val = X1_plot_val.copy()
-            X_plot_val = np.append(X1_plot_val, X2_plot_val, axis=1)
-            Y_plot_val = linear_model(X_plot_val, Trial.degree, W)
-
-            X1_plot_test = np.linspace(np.min(X_test), np.max(X_test),grid_size)
-            X1_plot_test = X1_plot_test.reshape([grid_size, 1])
-            X2_plot_test = X1_plot_test.copy()
-            X_plot_test = np.append(X1_plot_test, X2_plot_test, axis=1)
-            Y_plot_test = linear_model(X_plot_test, Trial.degree, W)
-
-            print("Check 2 ; degree = %d ; lda = %f "  % (degree,lda))
+            X_plot_train, Y_plot_train = Trial.mesh_formation(X_train, degree, grid_size, W)
+            X_plot_val, Y_plot_val = Trial.mesh_formation(X_val, degree, grid_size, W)
+            X_plot_test, Y_plot_test = Trial.mesh_formation(X_test, degree, grid_size, W)
 
             SERMS_train += ERMS_train
             SERMS_val += ERMS_val
@@ -121,7 +72,6 @@ for degree in degrees:
                                 Y_plot_val, X_test, Y_test, Y_testpred, X_plot_test,
                                 Y_plot_test]
 
-            print(fold)
             if lda == 0 and i == fold:
 
                 X_train0 = fold_data[i + 1][4]
@@ -133,8 +83,8 @@ for degree in degrees:
                 main_title = "Polynomial Curve Fitting on Training data: Degree = %d; Fold = %d; ERMS = %f;" % (
                     degree, i + 1, ERMS_train)
 
-                Trial.plottingforregression(main_title, lda, X_train, Y_train, X,
-                                              Y_plot_train, X_train0, Y_train0, X_plot_train0, Y_plot_train0)
+                Trial.plottingforregression(main_title, lda, X_train, Y_train, X_plot_train,
+                                            Y_plot_train, X_train0, Y_train0, X_plot_train0, Y_plot_train0)
 
                 # error_title = 'Error Analysis for degree = %d and Lambda = %f' % (degree, lda)
                 # Trial.error_analysis_plot()
@@ -160,6 +110,5 @@ csvtitle = 'Regression1D_Error_table_training_size_%d.csv' % train_datasize
 ERMS_table.to_csv(csvtitle, encoding='utf-8')
 print(Best_model_predict)
 print(Best_model_true)
-
 
 pyplot.show()
