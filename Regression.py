@@ -78,7 +78,7 @@ class Regression:
 
         return RMSE, test_x_np, test_y_np, y_pred
 
-    def plottingforregression(self, main_title, lda, xtrain, ytrain, xplottrain, yplottrain,
+    def curve_fitting_plot(self, main_title, lda, xtrain, ytrain, xplottrain, yplottrain,
                               xtrain0=None, ytrain0=None, xplottrain0=None, yplottrain0=None):
         """This function plots the predicted curve or surface based on the inputs given"""
 
@@ -200,3 +200,14 @@ class Regression:
         else:
 
             print("Feature size is too large. So Mesh grid cannot be expressed in the 3D cartesian coordinate system")
+
+    def regressionplot (self, ytarget, ypred, main_title, grid, color):
+
+        pyplot.figure()
+        start = min(np.min(ypred), np.min(ytarget))
+        end = max(np.max(ypred), np.max(ytarget))
+        line = np.linspace(start, end, grid)
+        pyplot.plot(line,line, 'k', label = 'True regression line')
+        pyplot.scatter(ytarget, ypred, c='snow', edgecolors=color, label="Regression Correlation plot")
+        pyplot.legend(loc = 'upper left')
+        pyplot.title(main_title)

@@ -8,7 +8,7 @@ from Regression import Regression
 
 # input_path = "C:\Users\laxman\OneDrive\Desktop\ML\PRMLv2_Task1"
 # input_filename = "function2"
-train_datasize = 50
+train_datasize = 10
 K = 4
 degrees = [2, 3, 6]
 degree_data = {}
@@ -83,7 +83,7 @@ for degree in degrees:
                 main_title = "Polynomial Curve Fitting on Training data: Degree = %d; Fold = %d; ERMS = %f;" % (
                     degree, i + 1, ERMS_train)
 
-                Trial.plottingforregression(main_title, lda, X_train, Y_train, X_plot_train,
+                Trial.curve_fitting_plot(main_title, lda, X_train, Y_train, X_plot_train,
                                             Y_plot_train, X_train0, Y_train0, X_plot_train0, Y_plot_train0)
 
                 # error_title = 'Error Analysis for degree = %d and Lambda = %f' % (degree, lda)
@@ -110,5 +110,30 @@ csvtitle = 'Regression1D_Error_table_training_size_%d.csv' % train_datasize
 ERMS_table.to_csv(csvtitle, encoding='utf-8')
 print(Best_model_predict)
 print(Best_model_true)
+
+
+# Section for plotting y - target vs y - prediction
+
+Best_degree = Best_model_predict['Degree']
+Best_lambda = Best_model_predict['Lambda']
+Best_meanerms = Best_model_predict['Mean ERMS of Validation data']
+
+Best_ERMS_val_list = [degree_data[Best_degree][Best_lambda][i][2] for i in range(1,K+1)]
+Best_model_fold = Best_ERMS_val_list.index(min(Best_ERMS_val_list))+1
+Best_model_true_train = degree_data[Best_degree][Best_lambda][Best_model_fold][5]
+Best_model_predict_train = degree_data[Best_degree][Best_lambda][Best_model_fold][6]
+Best_model_true_val = degree_data[Best_degree][Best_lambda][Best_model_fold][10]
+Best_model_predict_val = degree_data[Best_degree][Best_lambda][Best_model_fold][11]
+Best_model_true_test = degree_data[Best_degree][Best_lambda][Best_model_fold][15]
+Best_model_predict_test = degree_data[Best_degree][Best_lambda][Best_model_fold][16]
+
+r_tnt = "Best model on training data: Degree = %d; Lambda = %f" % (Best_degree,Best_lambda)
+r_vt  = "Best model on validation data: Degree = %d; Lambda = %f" % (Best_degree,Best_lambda)
+r_tt  = "Best model on testing data: Degree = %d; Lambda = %f" % (Best_degree,Best_lambda)
+
+Trial.regressionplot(Best_model_true_train, Best_model_predict_train, r_tnt,grid_size, 'red')
+Trial.regressionplot(Best_model_true_val, Best_model_predict_val, r_vt,grid_size, 'green')
+Trial.regressionplot(Best_model_true_test, Best_model_predict_test, r_tt,grid_size, 'blue')
+
 
 pyplot.show()
